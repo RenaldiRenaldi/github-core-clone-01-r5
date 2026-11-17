@@ -36,6 +36,9 @@ func TestRepositoryAndIssuesShareStore(t *testing.T) {
 	if read.Code != http.StatusOK {
 		t.Fatalf("read issue status=%d", read.Code)
 	}
+	if read.Header().Get("X-GitHub-Request-Id") == "" {
+		t.Fatal("REST response lacks a request id")
+	}
 }
 
 func TestAuthenticationAndUnknownResource(t *testing.T) {
@@ -49,5 +52,9 @@ func TestAuthenticationAndUnknownResource(t *testing.T) {
 	missing := call(t, f, http.MethodGet, "/api/v3/repos/adaiversen/nope", nil)
 	if missing.Code != http.StatusNotFound {
 		t.Fatalf("missing status=%d", missing.Code)
+	}
+	root := call(t, f, http.MethodGet, "/api/v3/", nil)
+	if root.Code != http.StatusOK || root.Header().Get("X-OAuth-Scopes") == "" {
+		t.Fatal("authenticated root lacks scopes")
 	}
 }

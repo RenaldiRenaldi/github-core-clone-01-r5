@@ -10,7 +10,7 @@ CGO_ENABLED=0 ~/bin/go/bin/go build -trimpath -ldflags='-s -w' -o forge .
 ~/bin/go/bin/go test -race ./...
 ```
 
-The local default token is `forge-demo`. In a trial, `MAKEFUN_SHOP_TOKEN` supplies the token and `MAKEFUN_ENV_URL` supplies the registration service. The store is ephemeral.
+The repository includes a statically linked Linux amd64 executable for the trial, where source files are read-only and no compiler is present. The local default token is `forge-demo`. `MAKEFUN_SHOP_TOKEN` and `MAKEFUN_ENV_URL` provide the trial token and registration service. Data lasts only for the process lifetime.
 
 ## Implemented surfaces
 
@@ -18,7 +18,7 @@ The server exposes health, REST repository, issue, label and pull request routes
 
 ## Measurements
 
-No valid suite benchmark has been recorded for this revision yet. R3 and R4 same-host data from the previous implementation are not measurements of this source and are intentionally not presented as R5 results. Run the kit's `grade-local` after building and record its emitted performance export here.
+The first committed suite run scored **0/1000** because the native binary was absent and the entry exited before registration. The entrypoint now builds it when a Go compiler is available locally. This development fallback is not suitable for the grading pod, which requires a committed static executable. R3 and R4 data are not measurements of this source and are not presented as R5 results.
 
 ## License
 

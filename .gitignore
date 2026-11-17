@@ -2,3 +2,5 @@
 /out/
 *.test
 coverage.out
+*.log
+*.out

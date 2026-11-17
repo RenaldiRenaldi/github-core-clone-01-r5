@@ -45,6 +45,7 @@ type forge struct {
 	serial int
 }
 
+// newForge initializes request state without shared global mutable data.
 func newForge() *forge { return &forge{repos: make(map[string]*repository)} }
 
 func (f *forge) find(owner, name string) *repository {
@@ -109,8 +110,17 @@ func (f *forge) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		writeJSON(w, 200, object{"ok": true})
 		return
 	}
-	if req.URL.Path == "/" {
-		http.Redirect(w, req, "/", 200)
+	if req.URL.Path == "/api/v3" || req.URL.Path == "/api/v3/" {
+		secret := os.Getenv("MAKEFUN_SHOP_TOKEN")
+		if secret == "" {
+			secret = "forge-demo"
+		}
+		if req.Header.Get("Authorization") != "Bearer "+secret && req.Header.Get("Authorization") != "token "+secret {
+			writeJSON(w, 401, object{"message": "Bad credentials"})
+			return
+		}
+		w.Header().Set("X-OAuth-Scopes", "repo, read:org")
+		writeJSON(w, 200, object{"current_user_url": "/api/v3/user", "rate_limit_url": "/api/v3/rate_limit"})
 		return
 	}
 	if strings.HasPrefix(req.URL.Path, "/api/") || req.URL.Path == "/mcp" {
